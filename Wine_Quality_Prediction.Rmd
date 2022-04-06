@@ -1,0 +1,36 @@
+---
+title: "Wine Quality Prediction"
+author: "Kyle Krawl"
+date: "4/6/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+env_dir = paste(getwd(), "/R Projects/wine-quality", sep = "")
+knitr::opts_knit$set(root.dir = env_dir)
+```
+
+### Environment Setup and Data Import
+
+```{r}
+## Load libraries used in analysis:
+
+# Data manipulation:
+library(dplyr)
+
+# Visualizations:
+library(ggplot2)
+library(gridExtra)
+library(ggpubr)
+```
+
+```{r}
+## Load datasets:
+
+# Red wines:
+data_red <- read.csv("./Data/winequality-red.csv", header=TRUE, sep=";")
+
+# White wines:
+data_white <- read.csv("./Data/winequality-white.csv", header=TRUE, sep=";")
+```
