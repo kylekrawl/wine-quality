@@ -76,42 +76,37 @@ grid.arrange(r.bar, w.bar, ncol = 2)
 ```{r}
 ## Histograms of independent variables:
 
+# Function for generating histograms:
+
+generate_histograms <- function(df) {
+  plot_list <- vector('list', length(df))
+  name_list <- names(df)
+  
+  for (i in seq_along(df)) {
+    df.x <- df[[name_list[i]]]
+    plot_list[[i]] <- ggplot(data = df, aes(x = .data[[name_list[i]]])) + 
+      geom_histogram(color = "white", 
+                     binwidth = (max(df.x)-min(df.x))/ceiling(sqrt(length(df.x))))
+  }
+  return(plot_list)
+}
+
 # Red wines:
 
-r.h1 <- ggplot(data_red, aes(x = fixed.acidity)) + geom_histogram(color = "white")
-r.h2 <- ggplot(data_red, aes(x = volatile.acidity)) + geom_histogram(color = "white")
-r.h3 <- ggplot(data_red, aes(x = citric.acid)) + geom_histogram(color = "white")
-r.h4 <- ggplot(data_red, aes(x = residual.sugar)) + geom_histogram(color = "white")
-r.h5 <- ggplot(data_red, aes(x = chlorides)) + geom_histogram(color = "white")
-r.h6 <- ggplot(data_red, aes(x = free.sulfur.dioxide)) + geom_histogram(color = "white")
-r.h7 <- ggplot(data_red, aes(x = total.sulfur.dioxide)) + geom_histogram(color = "white")
-r.h8 <- ggplot(data_red, aes(x = density)) + geom_histogram(color = "white")
-r.h9 <- ggplot(data_red, aes(x = pH)) + geom_histogram(color = "white")
-r.h10 <- ggplot(data_red, aes(x = sulphates)) + geom_histogram(color = "white")
-r.h11 <- ggplot(data_red, aes(x = alcohol)) + geom_histogram(color = "white")
+r.hist <- generate_histograms(data_red.x)
 
-grid.arrange(r.h1, r.h2, r.h3, r.h4, r.h5, r.h6, ncol = 2, 
+grid.arrange(grobs = r.hist[1:6], ncol = 2, 
              top=textGrob("Histograms of Red Wine Variables (1 of 2)"))
-grid.arrange(r.h7, r.h8, r.h9, r.h10, r.h11, ncol = 2, 
+grid.arrange(grobs = r.hist[7:11], ncol = 2, 
              top=textGrob("Histograms of Red Wine Variables (2 of 2)"))
 
 # White wines:
 
-w.h1 <- ggplot(data_white, aes(x = fixed.acidity)) + geom_histogram(color = "white")
-w.h2 <- ggplot(data_white, aes(x = volatile.acidity)) + geom_histogram(color = "white")
-w.h3 <- ggplot(data_white, aes(x = citric.acid)) + geom_histogram(color = "white")
-w.h4 <- ggplot(data_white, aes(x = residual.sugar)) + geom_histogram(color = "white")
-w.h5 <- ggplot(data_white, aes(x = chlorides)) + geom_histogram(color = "white")
-w.h6 <- ggplot(data_white, aes(x = free.sulfur.dioxide)) + geom_histogram(color = "white")
-w.h7 <- ggplot(data_white, aes(x = total.sulfur.dioxide)) + geom_histogram(color = "white")
-w.h8 <- ggplot(data_white, aes(x = density)) + geom_histogram(color = "white")
-w.h9 <- ggplot(data_white, aes(x = pH)) + geom_histogram(color = "white")
-w.h10 <- ggplot(data_white, aes(x = sulphates)) + geom_histogram(color = "white")
-w.h11 <- ggplot(data_white, aes(x = alcohol)) + geom_histogram(color = "white")
+w.hist <- generate_histograms(data_white.x)
 
-grid.arrange(w.h1, w.h2, w.h3, w.h4, w.h5, w.h6, ncol = 2, 
+grid.arrange(grobs = w.hist[1:6], ncol = 2, 
              top=textGrob("Histograms of White Wine Variables (1 of 2)"))
-grid.arrange(w.h7, w.h8, w.h9, w.h10, w.h11, ncol = 2, 
+grid.arrange(grobs = w.hist[7:11], ncol = 2, 
              top=textGrob("Histograms of White Wine Variables (2 of 2)"))
 
 ```
@@ -119,160 +114,115 @@ grid.arrange(w.h7, w.h8, w.h9, w.h10, w.h11, ncol = 2,
 ```{r}
 ## Jitter plots of independent variables and dependent variable:
 
+# Function for generating jitter plots:
+
+generate_jitter_plots <- function(df, y_name) {
+  y = df[, y_name]
+  x = df[, -which(names(df) %in% y_name)]
+  plot_list <- vector('list', length(x))
+  name_list <- names(x)
+  
+  for (i in seq_along(x)) {
+    plot_list[[i]] <- ggplot(data = df, aes(x = .data[[name_list[i]]], y = .data[[y_name]])) + geom_jitter()
+  }
+  return(plot_list)
+}
+
 # Red wines:
 
-r.s1 <- ggplot(data_red, aes(x = fixed.acidity, y = quality)) + geom_jitter()
-r.s2 <- ggplot(data_red, aes(x = volatile.acidity, y = quality)) + geom_jitter()
-r.s3 <- ggplot(data_red, aes(x = citric.acid, y = quality)) + geom_jitter()
-r.s4 <- ggplot(data_red, aes(x = residual.sugar, y = quality)) + geom_jitter()
-r.s5 <- ggplot(data_red, aes(x = chlorides, y = quality)) + geom_jitter()
-r.s6 <- ggplot(data_red, aes(x = free.sulfur.dioxide, y = quality)) + geom_jitter()
-r.s7 <- ggplot(data_red, aes(x = total.sulfur.dioxide, y = quality)) + geom_jitter()
-r.s8 <- ggplot(data_red, aes(x = density, y = quality)) + geom_jitter()
-r.s9 <- ggplot(data_red, aes(x = pH, y = quality)) + geom_jitter()
-r.s10 <- ggplot(data_red, aes(x = sulphates, y = quality)) + geom_jitter()
-r.s11 <- ggplot(data_red, aes(x = alcohol, y = quality)) + geom_jitter()
+r.jplots <- generate_jitter_plots(data_red, "quality")
 
-grid.arrange(r.s1, r.s2, r.s3, ncol = 3, 
-             top=textGrob("Scatter Plots of Red Wine Variables vs. Quality (1 of 4)"))
-grid.arrange(r.s4, r.s5, r.s6, ncol = 3, 
-             top=textGrob("Scatter Plots of Red Wine Variables vs. Quality (2 of 4)"))
-grid.arrange(r.s7, r.s8, r.s9, ncol = 3, 
-             top=textGrob("Scatter Plots of Red Wine Variables vs. Quality (3 of 4)"))
-grid.arrange(r.s10, r.s11, ncol = 2, 
-             top=textGrob("Scatter Plots of Red Wine Variables vs. Quality (4 of 4)"))
+grid.arrange(grobs = r.jplots[1:4], ncol = 2, 
+             top=textGrob("Scatter Plots of Red Wine Variables vs. Quality (1 of 3)"))
+grid.arrange(grobs = r.jplots[5:8], ncol = 2, 
+             top=textGrob("Scatter Plots of Red Wine Variables vs. Quality (2 of 3)"))
+grid.arrange(grobs = r.jplots[9:11], ncol = 2, 
+             top=textGrob("Scatter Plots of Red Wine Variables vs. Quality (3 of 3)"))
 
 # White wines:
 
-w.s1 <- ggplot(data_white, aes(x = fixed.acidity, y = quality)) + geom_jitter()
-w.s2 <- ggplot(data_white, aes(x = volatile.acidity, y = quality)) + geom_jitter()
-w.s3 <- ggplot(data_white, aes(x = citric.acid, y = quality)) + geom_jitter()
-w.s4 <- ggplot(data_white, aes(x = residual.sugar, y = quality)) + geom_jitter()
-w.s5 <- ggplot(data_white, aes(x = chlorides, y = quality)) + geom_jitter()
-w.s6 <- ggplot(data_white, aes(x = free.sulfur.dioxide, y = quality)) + geom_jitter()
-w.s7 <- ggplot(data_white, aes(x = total.sulfur.dioxide, y = quality)) + geom_jitter()
-w.s8 <- ggplot(data_white, aes(x = density, y = quality)) + geom_jitter()
-w.s9 <- ggplot(data_white, aes(x = pH, y = quality)) + geom_jitter()
-w.s10 <- ggplot(data_white, aes(x = sulphates, y = quality)) + geom_jitter()
-w.s11 <- ggplot(data_white, aes(x = alcohol, y = quality)) + geom_jitter()
+w.jplots <- generate_jitter_plots(data_white, "quality")
 
-grid.arrange(w.s1, w.s2, w.s3, ncol = 3, 
-             top=textGrob("Scatter Plots of White Wine Variables vs. Quality (1 of 4)"))
-grid.arrange(w.s4, w.s5, w.s6, ncol = 3, 
-             top=textGrob("Scatter Plots of White Wine Variables vs. Quality (2 of 4)"))
-grid.arrange(w.s7, w.s8, w.s9, ncol = 3, 
-             top=textGrob("Scatter Plots of White Wine Variables vs. Quality (3 of 4)"))
-grid.arrange(w.s10, w.s11, ncol = 2, 
-             top=textGrob("Scatter Plots of White Wine Variables vs. Quality (4 of 4)"))
+grid.arrange(grobs = w.jplots[1:4], ncol = 2, 
+             top=textGrob("Scatter Plots of White Wine Variables vs. Quality (1 of 3)"))
+grid.arrange(grobs = w.jplots[5:8], ncol = 2, 
+             top=textGrob("Scatter Plots of White Wine Variables vs. Quality (2 of 3)"))
+grid.arrange(grobs = w.jplots[9:11], ncol = 2, 
+             top=textGrob("Scatter Plots of White Wine Variables vs. Quality (3 of 3)"))
 ```
 
 ```{r}
 ## Box plots:
 
+# Function for generating histograms:
+
+generate_box_plots <- function(df) {
+  plot_list <- vector('list', length(df))
+  name_list <- names(df)
+  
+  for (i in seq_along(df)) {
+    plot_list[[i]] <- ggplot(data = df, aes(y = .data[[name_list[i]]])) + 
+      geom_boxplot() + 
+      coord_cartesian(xlim = c(-1, 1)) + 
+      theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+  }
+  return(plot_list)
+}
+
 # Red wines:
 
-r.b1 <- ggplot(data_red, aes(y = fixed.acidity)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-r.b2 <- ggplot(data_red, aes(y = volatile.acidity)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-r.b3 <- ggplot(data_red, aes(y = citric.acid)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-r.b4 <- ggplot(data_red, aes(y = residual.sugar)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-r.b5 <- ggplot(data_red, aes(y = chlorides)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-r.b6 <- ggplot(data_red, aes(y = free.sulfur.dioxide)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-r.b7 <- ggplot(data_red, aes(y = total.sulfur.dioxide)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-r.b8 <- ggplot(data_red, aes(y = density)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-r.b9 <- ggplot(data_red, aes(y = pH)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-r.b10 <- ggplot(data_red, aes(y = sulphates)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-r.b11 <- ggplot(data_red, aes(y = alcohol)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+r.bplots <- generate_box_plots(data_red.x)
 
-grid.arrange(r.b1, r.b2, r.b3, r.b4, r.b5, r.b6, ncol = 2, 
+grid.arrange(grobs = r.bplots[1:6], ncol = 2, 
              top=textGrob("Box Plots of Red Wine Variables (1 of 2)"))
-grid.arrange(r.b7, r.b8, r.b9, r.b10, r.b11, ncol = 2, 
+grid.arrange(grobs = r.bplots[7:11], ncol = 2, 
              top=textGrob("Box Plots of Red Wine Variables (2 of 2)"))
 
 # White wines:
 
-w.b1 <- ggplot(data_white, aes(y = fixed.acidity)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-w.b2 <- ggplot(data_white, aes(y = volatile.acidity)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-w.b3 <- ggplot(data_white, aes(y = citric.acid)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-w.b4 <- ggplot(data_white, aes(y = residual.sugar)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-w.b5 <- ggplot(data_white, aes(y = chlorides)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-w.b6 <- ggplot(data_white, aes(y = free.sulfur.dioxide)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-w.b7 <- ggplot(data_white, aes(y = total.sulfur.dioxide)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-w.b8 <- ggplot(data_white, aes(y = density)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-w.b9 <- ggplot(data_white, aes(y = pH)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-w.b10 <- ggplot(data_white, aes(y = sulphates)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-w.b11 <- ggplot(data_white, aes(y = alcohol)) + geom_boxplot() + coord_cartesian(xlim = c(-1, 1)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+w.bplots <- generate_box_plots(data_white.x)
 
-grid.arrange(w.b1, w.b2, w.b3, w.b4, w.b5, w.b6, ncol = 2, 
+grid.arrange(grobs = w.bplots[1:6], ncol = 2, 
              top=textGrob("Box Plots of White Wine Variables (1 of 2)"))
-grid.arrange(w.b7, w.b8, w.b9, w.b10, w.b11, ncol = 2, 
+grid.arrange(grobs = w.bplots[7:11], ncol = 2, 
              top=textGrob("Box Plots of White Wine Variables (2 of 2)"))
 ```
 
 ```{r}
 ## Q-Q plots:
 
+# Function for generating Q-Q plots:
+
+generate_qq_plots <- function(df) {
+  plot_list <- vector('list', length(df))
+  name_list <- names(df)
+  
+  for (i in seq_along(df)) {
+    plot_list[[i]] <- ggqqplot(data = df, x = name_list[i], title = name_list[i])
+  }
+  return(plot_list)
+}
+
 # Red wines:
 
-r.q1 <- ggqqplot(data_red, "fixed.acidity", title="fixed.acidity")
-r.q2 <- ggqqplot(data_red, "volatile.acidity", title="volatile.acidity")
-r.q3 <- ggqqplot(data_red, "citric.acid", title="citric.acid")
-r.q4 <- ggqqplot(data_red, "residual.sugar", title="residual.sugar")
-r.q5 <- ggqqplot(data_red, "chlorides", title="chlorides")
-r.q6 <- ggqqplot(data_red, "free.sulfur.dioxide", title="free.sulfur.dioxide")
-r.q7 <- ggqqplot(data_red, "total.sulfur.dioxide", title="total.sulfur.dioxide")
-r.q8 <- ggqqplot(data_red, "density", title="density")
-r.q9 <- ggqqplot(data_red, "pH", title="pH")
-r.q10 <- ggqqplot(data_red, "sulphates", title="sulphates")
-r.q11 <- ggqqplot(data_red, "alcohol", title="alcohol")
+r.qqplots <- generate_qq_plots(data_red.x)
 
-grid.arrange(r.q1, r.q2, r.q3, r.q4, ncol = 2, 
+grid.arrange(grobs = r.qqplots[1:4], ncol = 2, 
              top=textGrob("Q-Q Plots of Red Wine Variables (1 of 3)"))
-grid.arrange(r.q5, r.q6, r.q7, r.q8, ncol = 2, 
+grid.arrange(grobs = r.qqplots[5:8], ncol = 2, 
              top=textGrob("Q-Q Plots of Red Wine Variables (2 of 3)"))
-grid.arrange(r.q9, r.q10, r.q11, ncol = 2, 
+grid.arrange(grobs = r.qqplots[9:11], ncol = 2, 
              top=textGrob("Q-Q Plots of Red Wine Variables (3 of 3)"))
 
 # White wines:
 
-r.q1 <- ggqqplot(data_white, "fixed.acidity", title="fixed.acidity")
-r.q2 <- ggqqplot(data_white, "volatile.acidity", title="volatile.acidity")
-r.q3 <- ggqqplot(data_white, "citric.acid", title="citric.acid")
-r.q4 <- ggqqplot(data_white, "residual.sugar", title="residual.sugar")
-r.q5 <- ggqqplot(data_white, "chlorides", title="chlorides")
-r.q6 <- ggqqplot(data_white, "free.sulfur.dioxide", title="free.sulfur.dioxide")
-r.q7 <- ggqqplot(data_white, "total.sulfur.dioxide", title="total.sulfur.dioxide")
-r.q8 <- ggqqplot(data_white, "density", title="density")
-r.q9 <- ggqqplot(data_white, "pH", title="pH")
-r.q10 <- ggqqplot(data_white, "sulphates", title="sulphates")
-r.q11 <- ggqqplot(data_white, "alcohol", title="alcohol")
+w.qqplots <- generate_qq_plots(data_white.x)
 
-grid.arrange(r.q1, r.q2, r.q3, r.q4, ncol = 2, 
+grid.arrange(grobs = w.qqplots[1:4], ncol = 2, 
              top=textGrob("Q-Q Plots of White Wine Variables (1 of 3)"))
-grid.arrange(r.q5, r.q6, r.q7, r.q8, ncol = 2, 
+grid.arrange(grobs = w.qqplots[5:8], ncol = 2, 
              top=textGrob("Q-Q Plots of White Wine Variables (2 of 3)"))
-grid.arrange(r.q9, r.q10, r.q11, ncol = 2, 
+grid.arrange(grobs = w.qqplots[9:11], ncol = 2, 
              top=textGrob("Q-Q Plots of White Wine Variables (3 of 3)"))
 ```
 
