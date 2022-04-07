@@ -25,6 +25,10 @@ library(grid)
 library(gridExtra)
 library(ggpubr)
 library(corrplot)
+
+# Principal component analysis:
+library(FactoMineR)
+library(factoextra)
 ```
 
 ```{r}
@@ -40,6 +44,10 @@ data_white <- read.csv("./Data/winequality-white.csv", header=TRUE, sep=";")
 
 data_red$quality <- as.factor(data_red$quality)
 data_white$quality <- as.factor(data_white$quality)
+
+# Subset dataframe containing only independent variables:
+data_red.x <- data_red %>% select(-quality)
+data_white.x <- data_white %>% select(-quality)
 ```
 
 ### Data Exploration
@@ -271,10 +279,6 @@ grid.arrange(r.q9, r.q10, r.q11, ncol = 2,
 ```{r}
 ## Correlation matrix:
 
-# Subset dataframe containing only independent variables:
-data_red.x <- data_red %>% select(-quality)
-data_white.x <- data_white %>% select(-quality)
-
 # Red wines:
 r.corr.matrix <- cor(data_red.x)
 corrplot(r.corr.matrix, method="circle")
@@ -282,4 +286,50 @@ corrplot(r.corr.matrix, method="circle")
 # White wines:
 w.corr.matrix <- cor(data_white.x)
 corrplot(w.corr.matrix, method="circle")
+```
+
+```{r}
+## Principal component analysis:
+
+# Red wines:
+
+r.data_pca <- PCA(data_red, scale.unit = TRUE, 
+                  ncp = 11, quali.sup = 12, 
+                  graph = FALSE)
+
+fviz_screeplot(r.data_pca, 
+	choice = "eigenvalue", 
+	ncp = 11)
+
+print("Red Wine:")
+r.data_pca$eig
+
+r.eig_kc <- r.data_pca$eig %>%
+	as.data.frame() %>%  
+	filter(eigenvalue > 1.0)
+r.eig_kc
+
+# White wines:
+
+w.data_pca <- PCA(data_white, scale.unit=TRUE, 
+                  ncp=11, quali.sup=12, 
+                  graph=FALSE)
+
+fviz_screeplot(w.data_pca, 
+	choice = "eigenvalue", 
+	ncp = 11)
+
+print("White Wine:")
+w.data_pca$eig
+
+w.eig_kc <- w.data_pca$eig %>%
+	as.data.frame() %>%  
+	filter(eigenvalue > 1.0)
+w.eig_kc
+```
+
+### Analysis and Model Evaluation:
+
+```{r}
+
 ```
