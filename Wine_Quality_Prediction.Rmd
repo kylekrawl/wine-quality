@@ -29,6 +29,10 @@ library(corrplot)
 # Principal component analysis:
 library(FactoMineR)
 library(factoextra)
+
+# Modeling:
+library(caret)
+library(nnet)
 ```
 
 ```{r}
@@ -45,7 +49,10 @@ data_white <- read.csv("./Data/winequality-white.csv", header=TRUE, sep=";")
 data_red$quality <- as.factor(data_red$quality)
 data_white$quality <- as.factor(data_white$quality)
 
+levels(data_red$quality) <- list(q3 = "3", q4 = "4", q5 = "5", q6 = "6", q7 = "7", q8 = "8")
+levels(data_white$quality) <- list(q3 = "3", q4 = "4", q5 = "5", q6 = "6", q7 = "7", q8 = "8", q9 = "9")
 # Subset dataframe containing only independent variables:
+
 data_red.x <- data_red %>% select(-quality)
 data_white.x <- data_white %>% select(-quality)
 ```
@@ -154,7 +161,7 @@ grid.arrange(grobs = w.jplots[9:11], ncol = 2,
 ```{r}
 ## Box plots:
 
-# Function for generating histograms:
+# Function for generating box plots:
 
 generate_box_plots <- function(df) {
   plot_list <- vector('list', length(df))
@@ -281,5 +288,98 @@ w.eig_kc
 ### Analysis and Model Evaluation:
 
 ```{r}
+## Training and testing split:
 
+set.seed(1234)
+
+## Red wines:
+
+r.in_train <- createDataPartition(data_red$quality, p=0.7, list=FALSE)
+r.training <- data_red[r.in_train,]
+r.testing <- data_red[-r.in_train,]
+
+## White wines:
+
+w.in_train <- createDataPartition(data_white$quality, p=0.7, list=FALSE)
+w.training <- data_white[w.in_train,]
+w.testing <- data_white[-w.in_train,]
+```
+
+```{r}
+## Multinomial logistic regression with all independent variables:
+
+## Red wines:
+
+logr_red <- multinom(quality ~., data = r.training)
+
+summary(logr_red)
+
+logr_red.pred_class <- logr_red %>% predict(r.testing)
+mean(logr_red.pred_class == r.testing$quality)
+
+## White wines:
+
+logr_white <- multinom(quality ~., data = w.training)
+
+summary(logr_white)
+
+logr_white.pred_class <- logr_white %>% predict(w.testing)
+mean(logr_white.pred_class == w.testing$quality)
+```
+
+```{r}
+## K-nearest neighbors with all independent variables:
+
+normalize <- function(x) {
+  return((x-min(x))/(max(x)-min(x)))
+}
+
+r.training.norm <- apply(r.training[,1:11], 2, normalize) %>% as.data.frame()
+r.training.norm <- cbind(quality=r.training$quality, r.training.norm) %>% as.data.frame()
+
+w.training.norm <- apply(w.training[,1:11], 2, normalize) %>% as.data.frame()
+w.training.norm <- cbind(quality=w.training$quality, w.training.norm) %>% as.data.frame()
+
+knn.ctrl <- trainControl(
+  method = "cv",
+  number = 10,
+  classProbs = TRUE,
+  verboseIter = FALSE
+)
+
+knn.grid <- data.frame(k = seq(2, 100, by=2))
+
+## Red wines:
+
+knn_red <- train(
+  quality ~ ., 
+  data = r.training.norm, 
+  method = "knn", 
+  trControl = knn.ctrl,
+  tuneGrid = knn.grid
+)
+knn_red
+plot(knn_red)
+
+knn_red.pred_class <- predict(knn_red, newdata = r.testing, type = "raw")
+knn_red.pred_prob <- predict(knn_red, newdata = r.testing, type = "prob")
+
+mean(knn_red.pred_class == r.testing$quality)
+
+## White wines
+
+knn_white <- train(
+  quality ~ ., 
+  data = w.training.norm, 
+  method = "knn", 
+  trControl = knn.ctrl,
+  tuneGrid = knn.grid
+)
+knn_white
+plot(knn_white)
+
+knn_white.pred_class <- predict(knn_white, newdata = w.testing, type = "raw")
+knn_white.pred_prob <- predict(knn_white, newdata = w.testing, type = "prob")
+
+mean(knn_white.pred_class == w.testing$quality)
 ```
