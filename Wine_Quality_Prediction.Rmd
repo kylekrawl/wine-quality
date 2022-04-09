@@ -33,6 +33,7 @@ library(factoextra)
 # Modeling:
 library(caret)
 library(nnet)
+library(ranger)
 ```
 
 ```{r}
@@ -366,7 +367,7 @@ knn_red.pred_prob <- predict(knn_red, newdata = r.testing, type = "prob")
 
 mean(knn_red.pred_class == r.testing$quality)
 
-## White wines
+## White wines:
 
 knn_white <- train(
   quality ~ ., 
@@ -382,4 +383,58 @@ knn_white.pred_class <- predict(knn_white, newdata = w.testing, type = "raw")
 knn_white.pred_prob <- predict(knn_white, newdata = w.testing, type = "prob")
 
 mean(knn_white.pred_class == w.testing$quality)
+```
+
+```{r}
+## Random forest with all independent variables:
+
+rf.ctrl <- trainControl(
+  method = "cv",
+  number = 5,
+  verboseIter = TRUE
+)
+
+rf.grid <- data.frame(
+  .mtry = seq(1, 11),
+  .splitrule = "gini",
+  .min.node.size = 5
+)
+
+## Red wines:
+
+rf_red <- train(
+  quality ~ .,
+  data = r.training,
+  method = "ranger",
+  trControl = rf.ctrl,
+  tuneGrid = rf.grid,
+  num.trees = 500,
+  respect.unordered.factors = "order",
+  importance = "permutation"
+)
+rf_red
+plot(rf_red)
+
+rf_red.pred_class <- predict(rf_red, newdata = r.testing, type = "raw")
+
+mean(rf_red.pred_class == r.testing$quality)
+
+## White wines:
+
+rf_white <- train(
+  quality ~ .,
+  data = w.training,
+  method = "ranger",
+  trControl = rf.ctrl,
+  tuneGrid = rf.grid,
+  num.trees = 500,
+  respect.unordered.factors = "order",
+  importance = "permutation"
+)
+rf_white
+plot(rf_white)
+
+rf_white.pred_class <- predict(rf_white, newdata = w.testing, type = "raw")
+
+mean(rf_white.pred_class == w.testing$quality)
 ```
